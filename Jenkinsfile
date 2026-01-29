@@ -41,7 +41,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', usernameVariable: 'DOCKER_USER' passwordVariable: 'DOCKER_PASS')])  {
                          bat '''
    	        echo %DOCKER_PASS% | docker login -u devaharshini110 --password-stdin
-			            
+			             docker build -t mvnproj:1.0 .
                          docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
                          docker push devaharshini110/mymvnproj:latest
                          '''
