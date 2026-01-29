@@ -38,7 +38,7 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 echo "Login + Tag + Push"
-                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhubpass', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat """
                     echo %DOCKER_PASS% | docker login -u %DOCKERHUB_USER% --password-stdin
                     if %ERRORLEVEL% NEQ 0 exit /b 1
