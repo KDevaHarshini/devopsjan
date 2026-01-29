@@ -43,7 +43,7 @@ pipeline {
             bat '''
             docker logout
             echo %DOCKER_PASS%| docker login -u %DOCKER_USER% --password-stdin
-            docker tag myapp %DOCKER_USER%/myapp:latest
+            docker tag mvnproj:1.0 %DOCKER_USER%/myapp:latest
             docker push %DOCKER_USER%/myapp:latest
             '''
         }
