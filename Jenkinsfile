@@ -37,10 +37,15 @@ pipeline {
         }
         stage('Push Docker Image to DockerHub') {
             steps {
-               echo "Push Docker Image to DockerHub for mvn project"
-               withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'DOCKER_PASS')]) {
-                         bat '''
-   	        echo %DOCKER_PASS% | docker login -u kancharladevaharshini@gmail.com --password-stdin
+                echo "Login + Tag + Push"
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat """
+                    echo %DOCKER_PASS% | docker login -u %DOCKERHUB_USER% --password-stdin
+                    if %ERRORLEVEL% NEQ 0 exit /b 1
+ 
+                    docker tag %LOCAL_IMAGE% %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
+                    docker push %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
+                    """
 
                          docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
                          docker push devaharshini110/mymvnproj:latest
