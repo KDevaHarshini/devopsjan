@@ -45,11 +45,11 @@ pipeline {
  
                     docker tag %LOCAL_IMAGE% %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
                     docker push %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
+
+					docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
+                    docker push devaharshini110/mymvnproj:latest
                     """
 
-                         docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
-                         docker push devaharshini110/mymvnproj:latest
-                         '''
                   }
             }
         }
