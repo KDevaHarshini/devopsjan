@@ -35,24 +35,21 @@ pipeline {
                bat 'docker build -t mvnproj:1.0 .'
             }
         }
-        stage('Push Docker Image to DockerHub') {
-            steps {
-                echo "Login + Tag + Push"
-                withCredentials([usernamePassword(credentialsId: 'dockerhubpass', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat """
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                    if %ERRORLEVEL% NEQ 0 exit /b 1
- 
-                    docker tag %LOCAL_IMAGE% %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
-                    docker push %DOCKERHUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%
-
-					docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
-                    docker push devaharshini110/mymvnproj:latest
-                    """
-
-                  }
-            }
+         stage('Push Docker Image to DockerHub') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                          usernameVariable: 'DOCKER_USER',
+                                          passwordVariable: 'DOCKER_PASS')]) {
+            bat '''
+            docker logout
+            echo %DOCKER_PASS%| docker login -u %DOCKER_USER% --password-stdin
+            docker tag myapp %DOCKER_USER%/myapp:latest
+            docker push %DOCKER_USER%/myapp:latest
+            '''
         }
+    }
+}
+       
        
         stage('Deploy the project using Container') {
             steps {
