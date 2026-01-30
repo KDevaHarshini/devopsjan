@@ -36,33 +36,35 @@ pipeline {
             }
         }
          stage('Push Docker Image to DockerHub') {
-            steps {
-               echo "Push Docker Image to DockerHub for mvn project"
-                 withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'DOCKER_PASS')]) {
-                         bat '''
-   	        echo %DOCKER_PASS% | docker login -u devaharshini110 --password-stdin
-                         docker tag mvnproj:1.0 devaharshini110/mymvnproj:latest
-                         docker push devaharshini110/mymvnproj:latest
-                         '''
-                  }
-            }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhubpass',
+                                          usernameVariable: 'DOCKER_USER',
+                                          passwordVariable: 'DOCKER_PASS')]) {
+            bat '''
+            docker logout
+            echo %DOCKER_PASS%| docker login -u %DOCKER_USER% --password-stdin
+            docker tag mvnproj:1.0 %DOCKER_USER%/myapp:latest
+            docker push %DOCKER_USER%/myapp:latest
+            '''
         }
-         stage('Deploy the project using k8s') {
+    }
+}
+		 stage('Deploy the project using k8s') {
             steps {
                 echo "Running Java Application in k8s"
                 bat '''
-                   minikube delete
-	               minikube start
-	               minikube status
+                   "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" delete
+	               "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" start
+	               "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" status
 	               
-	               minikube image load devaharshini110/mymvnproj:latest
+	               "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" image load devaharshini110/mymvnproj:latest
 	               kubectl apply -f deployment.yaml
 	               sleep 20
 	               kubectl get pods
 	               kubectl apply -f services.yaml
 	               sleep 10
 	               kubectl get services
-	               minikube image ls   
+	               "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" image ls   
 	           
 	            '''
             }
@@ -73,7 +75,8 @@ pipeline {
                     steps{
                         echo "Running minikube dashboard"
                         bat '''
-                           minikube dashboard
+		           "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" addons enable metrics-server
+                           "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" dashboard
                            echo "Dashboard is running"
                         '''
                     }
@@ -83,7 +86,7 @@ pipeline {
                     steps{
                         echo "Running minikube services"
                         bat '''
-                           minikube service --all
+                           "C:\\Program Files\\Kubernetes\\Minikube\\minikube.exe" service --all
                            echo "All services are running"
                         '''				
 				}
@@ -91,11 +94,14 @@ pipeline {
 		}
         
     }
-	}
-   }   
+	
         stage('Deploy the project using Container') {
             steps {
                 echo "Running Java Application"
+				bat '''
+	docker rm -f myjavaappcont || exit 0
+	docker run --name myjavaappcont devaharshini110/mymvnproj:latest
+	'''
             }
         }
     }
